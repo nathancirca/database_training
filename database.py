@@ -13,8 +13,7 @@ def addImageYolov5(chemin,annotation): ###annotation est une liste contenant la 
     con=sqlite3.connect('baseImage.db')
     cur=con.cursor()
     cur.execute("INSERT INTO Images VALUES (?,?)", (None,chemin)) #création de l'objet image
-    imgID=cur.execute('SELECT ID FROM Images WHERE chemin=:chemin',{"chemin":chemin})
-    imgID=imgID.fetchone()
+    imgID=cur.execute('SELECT ID FROM Images WHERE chemin=:chemin',{"chemin":chemin}).fetchone()
     with open('/home/nathan/cours/projet2A/dataset_waffle/data.yaml', 'r') as f:
         names_set=yaml.load(f)['names']
     for i in range(len(annotation)//5):

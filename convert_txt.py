@@ -28,7 +28,7 @@ def calcul(obj_id,i) :
     return [cx,cy,w,h]
 
 #*********************************
-conn=sql.connect('database.db')
+conn=sql.connect('baseImage.db')
 
  # To view table data in table format
 print ("******Objets Table Data*******")
