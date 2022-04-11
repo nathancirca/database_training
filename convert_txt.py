@@ -28,7 +28,7 @@ def calcul(obj_id,i) :
     return [cx,cy,w,h]
 
 #*********************************
-conn=sql.connect('database.db')
+conn=sql.connect('test00.db')
 
  # To view table data in table format
 print ("******Objets Table Data*******")
@@ -42,20 +42,24 @@ cursor = conn.cursor()
 for k in range(len(img_id0)):
   #for j in range(len(img_id)):
     (img_id0[k],)=img_id0[k]
-  
+    print(img_id0)
     obj_id=cur.execute("SELECT ID from Objets where image_id=:img_id",{"img_id":img_id0[k]})
     obj_id=obj_id.fetchall() #(x1+x2)/2
     print(obj_id)
+    fichier = "fichier{}.txt".format(k+1)
+    if (obj_id== []):
+      with open(fichier, 'w') as txt_file:
+        txt_file.write(' ')
+        txt_file.writelines('\n')
     for i in range(len(obj_id)):
       L=[]
       L=calcul(obj_id,i)
-      print(L)
+      #print(L)
      
       classe=cursor.execute("select classe from Objets where image_id=:img_id",{"img_id":img_id0[k]})
       (classe,)=classe.fetchone()
-      fichier = "fichier{}.txt".format(k+1)
       with open(fichier, 'a') as txt_file:
-        txt_file.write(str(classe)+' '+str(L[0])+' '+str(L[1])+' '+str(L[2])+' '+str(L[3]))
+        txt_file.write(str(classe)+' '+str(L[0])+' '+str(L[1])+' '+str(L[2])+' '+str(L[3])+' ')
         txt_file.writelines('\n')
 
 dirpath = os.getcwd() + "/data_txt.txt"
