@@ -14,7 +14,6 @@ def get_classe_name(object,names_base,cursor):
     k=0
     while k<len(names_base) and not appartient(names_base[k].split(','),names):
         k+=1
-        print(k)
     if k<len(names_base):
         (classe,)=cursor.execute('SELECT classe FROM Objets WHERE nom=:names',{"names":names_base[k]}).fetchone()
         return (classe, names_base[k])
@@ -32,34 +31,36 @@ def get_classe_name(object,names_base,cursor):
         return (classe,names)
 
 def get_coord(object,annotation):
-    w=float(annotation[4][0].text)
-    h=float(annotation[4][1].text)
-    x1=float(object[4][0].text)/w
-    y1=float(object[4][1].text)/h
+    w=float(annotation[-2][2].text)
+    h=float(annotation[-2][1].text)
+    k=1
+    while object[k].tag!="bndbox":
+        k+=1
+    x1=float(object[k][1].text)/w
+    y1=float(object[k][3].text)/h
     x2=x1
-    y2=float(object[4][3].text)/h
-    x3=float(object[4][2].text)/w
+    y2=float(object[k][2].text)/h
+    x3=float(object[k][0].text)/w
     y3=y1
     x4=x3
     y4=y2
     return (x1,y1,x2,y2,x3,y3,x4,y4)
 
 def main():
-    con=sqlite3.connect('baseImage.db')
+    con=sqlite3.connect('baseImages.db')
     cur=con.cursor()
-    for j in range(1,4341):
-        chemin='/home/nathan/cours/projet2A/Annotations/'+str(j)+'.xml'
-        tree = ET.parse(chemin)
+    for j in range(1,2165): 
+        chemin='/media/pc-visualisation/DATA/dataset_sqlite/VOCdevkit/VOC2012/JPEGImages/14992+'+str(j)+'.xml'
+        tree = ET.parse('/media/pc-visualisation/DATA/dataset_sqlite/VOCdevkit/VOC2012/Annotations/14992+'+str(j)+'.xml')
         annotation = tree.getroot()
         cur.execute("INSERT INTO Images VALUES (?,?)", (None,chemin))
         (imgID,)=cur.execute('SELECT ID FROM Images WHERE chemin=:chemin',{"chemin":chemin}).fetchone()
-        for i in range(6,len(annotation)):
+        for i in range(2,len(annotation)-3):
             object=annotation[i]
             names_base=cur.execute('SELECT DISTINCT nom FROM Objets').fetchall()
             for j in range(len(names_base)):
                 (names_base[j],)=names_base[j]
             (classe,names)=get_classe_name(object,names_base,cur)
-            print(imgID,classe,names)
             cur.execute('INSERT INTO Objets VALUES (?,?,?,?)',(None,imgID,classe,names))
             (objID,)=cur.execute('SELECT MAX(ID) FROM Objets').fetchone()
             (x1,y1,x2,y2,x3,y3,x4,y4)=get_coord(object,annotation)

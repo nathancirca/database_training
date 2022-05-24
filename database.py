@@ -10,11 +10,11 @@ def appartient(list1,elem):
 
 def addImageYolov5(chemin,annotation): ###annotation est une liste contenant la classe, le point central, la largeur et la hauteur
     
-    con=sqlite3.connect('baseImage.db')
+    con=sqlite3.connect('baseImages.db')
     cur=con.cursor()
     cur.execute("INSERT INTO Images VALUES (?,?)", (None,chemin)) #création de l'objet image
     imgID=cur.execute('SELECT ID FROM Images WHERE chemin=:chemin',{"chemin":chemin}).fetchone()
-    with open('/home/nathan/cours/projet2A/dataset_waffle/data.yaml', 'r') as f:
+    with open('/media/pc-visualisation/DATA/dataset_sqlite/dataset_waffle/data.yaml', 'r') as f:
         names_set=yaml.load(f)['names']
     for i in range(len(annotation)//5):
         names_base=cur.execute('SELECT DISTINCT nom FROM Objets').fetchall()
@@ -33,7 +33,12 @@ def addImageYolov5(chemin,annotation): ###annotation est une liste contenant la 
             while add_name!='':
                 names=names+','+add_name
                 add_name=input()
-            cur.execute('INSERT INTO Objets VALUES (?,?,?,?)',(None,imgID[0],annotation[i*5],names)) #création de l'objet objet
+            (classe,)=cur.execute('SELECT MAX(classe) FROM Objets').fetchone()
+            if classe or classe==0:
+                classe+=1
+            else:
+                classe=0
+            cur.execute('INSERT INTO Objets VALUES (?,?,?,?)',(None,imgID[0],classe,names)) #création de l'objet objet
         objID=cur.execute('SELECT MAX(ID) FROM Objets').fetchone()
         cx,cy,w,h=annotation[(i*5)+1],annotation[(i*5)+2],annotation[(i*5)+3],annotation[(i*5)+4]
         x1=cx-w/2
@@ -51,7 +56,7 @@ def addImageYolov5(chemin,annotation): ###annotation est une liste contenant la 
     con.commit()
 
 for j in range(1,1148):
-    with open(r'/home/nathan/cours/projet2A/dataset_waffle/train/labels/'+str(j)+'.txt') as coordFile:
+    with open(r'/media/pc-visualisation/DATA/dataset_sqlite/dataset_waffle/train/labels/'+str(j)+'.txt') as coordFile:
         lines=coordFile.read()
         annotation=re.split(' |\n',lines)
         for i in range(len(annotation)//5):
@@ -60,4 +65,4 @@ for j in range(1,1148):
             annotation[i*5+2]=float(annotation[i*5+2])
             annotation[i*5+3]=float(annotation[i*5+3])
             annotation[i*5+4]=float(annotation[i*5+4])
-    addImageYolov5('/home/nathan/cours/projet2A/dataset_waffle/train/images/'+str(j)+'.jpg',annotation)
+    addImageYolov5('/media/pc-visualisation/DATA/dataset_sqlite/dataset_waffle/train/images/'+str(j)+'.jpg',annotation)
