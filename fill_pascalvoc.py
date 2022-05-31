@@ -38,19 +38,19 @@ def get_coord(object,annotation):
         k+=1
     x1=float(object[k][1].text)/w
     y1=float(object[k][3].text)/h
-    x2=x1
-    y2=float(object[k][2].text)/h
-    x3=float(object[k][0].text)/w
-    y3=y1
-    x4=x3
-    y4=y2
+    x2=float(object[k][0].text)/w
+    y2=y1
+    x3=x2
+    y3=float(object[k][2].text)/h
+    x4=x1
+    y4=y3
     return (x1,y1,x2,y2,x3,y3,x4,y4)
 
 def main():
     con=sqlite3.connect('baseImages.db')
     cur=con.cursor()
     for j in range(1,2165): 
-        chemin='/media/pc-visualisation/DATA/dataset_sqlite/VOCdevkit/VOC2012/JPEGImages/14992+'+str(j)+'.xml'
+        chemin='/media/pc-visualisation/DATA/dataset_sqlite/VOCdevkit/VOC2012/JPEGImages/14992+'+str(j)+'.jpg'
         tree = ET.parse('/media/pc-visualisation/DATA/dataset_sqlite/VOCdevkit/VOC2012/Annotations/14992+'+str(j)+'.xml')
         annotation = tree.getroot()
         cur.execute("INSERT INTO Images VALUES (?,?)", (None,chemin))
